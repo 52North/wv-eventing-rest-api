@@ -1,0 +1,54 @@
+{
+    "rule.label": {
+        "de": "Der Messwert '%s' der Station '%s' %s '%s'",
+        "en": "The measured value '%s' of station '%s' %s '%s'"
+    },
+    "rule.parameter.userId": {
+        "de": "Die ID des Nutzers, für den das Abonnement angelegt werden soll",
+        "en": "The target user ID for the new subscription"
+    },
+    "rule.parameter.groupId": {
+        "de": "Die ID der Gruppe, für die das Abonnement angelegt werden soll",
+        "en": "The target group ID for the new subscription"
+    },
+    "rule.alreadyPresent": {
+        "de": "Diese Regel ist bereits registriert: %s %s %s",
+        "en": "This rule is already present: %s %s %s"
+    },
+    "subscription.alreadyPresent": {
+        "de": "Dieses Abonnement ist bereits registriert",
+        "en": "This subscription is already present"
+    },
+    "notification.label": {
+        "de": "Regelgruppe '%s' für Zeitreihe '%s'",
+        "en": "Rule group '%s' for Series '%s'"
+    },
+    "series.checkage.olderthan": {
+        "de": "ist älter als",
+        "en": "is older than"
+    },
+    "series.checkage.uptodate": {
+        "de": "ist wieder aktuell",
+        "en": "is again up to date"
+    },
+    "series.subscription.created": {
+        "de": "Abonnement erstellt",
+        "en": "Subscription created"
+    },
+    "series.subscription.cancelled": {
+        "de": "Abonnement abbestellt",
+        "en": "Subscription cancelled"
+    },
+    "series.eventing.enabled": {
+        "de": "Eventing aktiviert",
+        "en": "Eventing enabled"
+    },
+    "series.eventing.disabled": {
+        "de": "Eventing deaktiviert",
+        "en": "Eventing disabled"
+    },
+    "series.ruleevent": {
+        "de": "Regelereignis",
+        "en": "Rule event"
+    }
+}

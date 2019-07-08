@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+ "-//Hibernate/Hibernate Mapping DTD//EN"
+ "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="org.n52.eventing.wv.model.WvUser" table="user_" mutable="false">
+        <meta attribute="class-description">
+            This class contains the user details.
+        </meta>
+        <id name="userid" type="long" column="userid">
+            <generator class="assigned"/>
+        </id>
+        <property name="name" column="screenname" type="string" unique="true"/>
+        <property name="password" column="password_" type="string"/>
+        <property name="firstName" column="firstname" type="string"/>
+        <property name="lastName" column="lastname" type="string"/>
+        <property name="email" column="emailaddress" type="string" unique="true"/>
+<!--        <property name="status" column="status" type="int"/>-->
+        <set name="groups" table="users_usergroups" inverse="false">
+            <key column="userid" foreign-key="users_usergroups_fkey_usergroup" />
+            <many-to-many column="usergroupid" class="org.n52.eventing.wv.model.Group" foreign-key="users_usergroups_fkey_user" />
+        </set>
+        <filter name="filter_user" condition="userid = :param_user"/>
+        <filter name="filter_user_groups" condition="userid = :param_user OR users_usergroups.usergroupid IN (:param_groups)"/>
+    </class>
+    <filter-def name="filter_user">
+        <filter-param name="param_user" type="long" />
+    </filter-def>
+    <filter-def name="filter_user_groups">
+        <filter-param name="param_user" type="long" />
+        <filter-param name="param_groups" type="long" />
+    </filter-def>
+</hibernate-mapping>

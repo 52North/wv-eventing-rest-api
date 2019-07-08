@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<license-lookup xmlns="https://source.jasig.org/schemas/maven-notice-plugin/license-lookup" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://source.jasig.org/schemas/maven-notice-plugin/license-lookup https://source.jasig.org/schemas/maven-notice-plugin/license-lookup/license-lookup-v1.0.xsd">
+    <artifact>
+        <groupId>org.eclipse.paho</groupId>
+        <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
+        <version>1.0.2</version>
+        <license>Eclipse Distribution License 1.0</license>
+    </artifact>
+	<!-- http://www.jdom.org/docs/faq.html#a0030 -->
+	<artifact>
+		<groupId>jdom</groupId>
+		<artifactId>jdom</artifactId>
+		<version>1.0</version>
+		<license>JDOM license, https://github.com/hunterhacker/jdom/blob/master/LICENSE.txt</license>
+    </artifact>
+	<artifact>
+		<groupId>dom4j</groupId>
+		<artifactId>dom4j</artifactId>
+		<version>1.6.1</version>
+		<license>DOM4J license, http://dom4j.sourceforge.net/dom4j-1.6.1/license.html (BSD style)</license>
+    </artifact>
+    <artifact>
+		<groupId>javax.el</groupId>
+		<artifactId>el-api</artifactId>
+		<version>2.2</version>
+		<license>CDDL 1.1 or GPL2 w/ CPE</license>
+    </artifact>
+</license-lookup>

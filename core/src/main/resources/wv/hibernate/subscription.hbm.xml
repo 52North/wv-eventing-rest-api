@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+ "-//Hibernate/Hibernate Mapping DTD//EN"
+ "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="org.n52.eventing.wv.model.WvSubscription" table="subscription" mutable="true">
+        <meta attribute="class-description">
+            This class contains the subscription details.
+        </meta>
+        <id name="id" type="int" column="pkid">
+            <generator class="identity"/>
+        </id>
+        <many-to-one name="notification" class="org.n52.eventing.wv.model.Notification" foreign-key="subscription_fkey_notification">
+            <column name="notification_pkid">
+                <comment>Relation/foreign key to the notification</comment>
+            </column>
+        </many-to-one>
+        <many-to-one name="user" class="org.n52.eventing.wv.model.WvUser" foreign-key="subscription_fkey_user">
+            <column name="userid">
+                <comment>Relation/foreign key to the user</comment>
+            </column>
+        </many-to-one>
+        <many-to-one name="group" class="org.n52.eventing.wv.model.Group" foreign-key="subscription_fkey_usergroup">
+            <column name="usergroupid">
+                <comment>Relation/foreign key to the group</comment>
+            </column>
+        </many-to-one>
+    </class>
+</hibernate-mapping>

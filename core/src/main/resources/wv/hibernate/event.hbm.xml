@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+ "-//Hibernate/Hibernate Mapping DTD//EN"
+ "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="org.n52.eventing.wv.model.WvEvent" table="event_log" mutable="true">
+        <meta attribute="class-description">
+            This class contains the event details.
+        </meta>
+        <id name="id" type="int" column="pkid">
+            <generator class="identity"/>
+        </id>
+        <many-to-one name="rule" class="org.n52.eventing.wv.model.Rule" foreign-key="event_log_fkey_rule">
+            <column name="rule_pkid">
+                <comment>Relation/foreign key to the rule</comment>
+            </column>
+        </many-to-one>
+        <many-to-one name="series" class="org.n52.eventing.wv.model.Series" foreign-key="event_log_fkey_series">
+            <column name="series_pkid">
+                <comment>Relation/foreign key to the series</comment>
+            </column>
+        </many-to-one>
+        <many-to-one name="notification" class="org.n52.eventing.wv.model.Notification" foreign-key="event_log_fkey_notification">
+            <column name="notification_pkid">
+                <comment>Relation/foreign key to the notification</comment>
+            </column>
+        </many-to-one>
+        <many-to-one name="user" class="org.n52.eventing.wv.model.WvUser" foreign-key="event_log_fkey_user">
+            <column name="user_userid">
+                <comment>Relation/foreign key to the user</comment>
+            </column>
+        </many-to-one>
+        <many-to-one name="group" class="org.n52.eventing.wv.model.Group" foreign-key="event_log_fkey_usergroup">
+            <column name="usergroup_usergroupid">
+                <comment>Relation/foreign key to the group</comment>
+            </column>
+        </many-to-one>
+        <many-to-one name="eventType" class="org.n52.eventing.wv.model.WvEventType" foreign-key="event_log_fkey_event_type">
+            <column name="event_type_pkid">
+                <comment>Relation/foreign key to the eventType</comment>
+            </column>
+        </many-to-one>
+        <many-to-one name="eventMessage" class="org.n52.eventing.wv.model.WvEventMessage" foreign-key="event_log_fkey_event_message">
+            <column name="event_message_pkid">
+                <comment>Relation/foreign key to the event message class</comment>
+            </column>
+        </many-to-one>
+        <property name="timestamp" column="observation_time_stamp" type="timestamp"/>
+        <property name="created" column="time_stamp_created" type="timestamp"/>
+        <property name="value" type="java.lang.Double">
+            <column name="observation_numeric_value"/>
+        </property>
+        <property name="previousTimestamp" column="observation_previous_time_stamp" type="timestamp"/>
+        <!--<property name="previousValue" column="observation_previous_numeric_value" type="big_decimal"/>-->
+        <property name="previousValue" type="java.lang.Double">
+            <column name="observation_previous_numeric_value" />
+        </property>
+
+        <set name="logMails" table="event_log_mail" inverse="true">
+            <key column="event_log_pkid" foreign-key="event_log_mail_fkey_event_log"/>
+            <one-to-many class="org.n52.eventing.wv.model.WvEventMail" />
+        </set>
+    </class>
+
+    <class name="org.n52.eventing.wv.model.WvEventMessage" table="event_message" mutable="true">
+        <meta attribute="class-description">
+            This class contains the event message class.
+        </meta>
+        <id name="id" type="int" column="pkid">
+            <generator class="identity"/>
+        </id>
+        <property name="name" column="name" type="string"/>
+        <property name="messageText" column="message_text" type="string"/>
+    </class>
+
+    <class name="org.n52.eventing.wv.model.WvEventType" table="event_type" mutable="true">
+        <meta attribute="class-description">
+            This class contains the event type info.
+        </meta>
+        <id name="id" type="int" column="pkid">
+            <generator class="identity"/>
+        </id>
+        <property name="name" column="name" type="string"/>
+        <property name="description" column="description" type="string"/>
+    </class>
+
+    <class name="org.n52.eventing.wv.model.WvEventMail" table="event_log_mail" mutable="true">
+        <meta attribute="class-description">
+            This class contains the event type info.
+        </meta>
+        <composite-id>
+            <key-property name="id" column="event_log_pkid" type="int"/>
+            <key-many-to-one name="user" class="org.n52.eventing.wv.model.WvUser" foreign-key="event_log_mail_fkey_user">
+                <column name="userid">
+                    <comment>Relation/foreign key to the user</comment>
+                </column>
+            </key-many-to-one>
+        </composite-id>
+        <!--
+        <id name="id" type="int" column="event_log_pkid">
+        </id>
+         -->
+        <property name="mailAddress" column="mail_address" type="string"/>
+        <property name="mailSentOn" column="mail_sent" type="timestamp"/>
+
+        <many-to-one name="subscription" class="org.n52.eventing.wv.model.WvSubscription" foreign-key="event_log_mail_fkey_subscription">
+            <column name="subscription_pkid">
+                <comment>Relation/foreign key to the subscription</comment>
+            </column>
+        </many-to-one>
+
+        <property name="content" column="content" type="string"/>
+
+        <!--
+        <many-to-one name="user" class="org.n52.eventing.wv.model.WvUser" foreign-key="event_log_mail_fkey_user">
+            <column name="userid">
+                <comment>Relation/foreign key to the user</comment>
+            </column>
+        </many-to-one>
+         -->
+
+        <many-to-one name="notificationLevel" class="org.n52.eventing.wv.model.NotificationLevel" foreign-key="event_log_mail_fkey_notification_level">
+            <column name="notification_level_id">
+                <comment>Relation/foreign key to the notification_level</comment>
+            </column>
+        </many-to-one>
+    </class>
+
+
+    <class name="org.n52.eventing.wv.model.WvNotificationEvent" table="notification_events" mutable="false">
+        <meta attribute="class-description">
+            This class contains the notification_events view.
+        </meta>
+        <composite-id>
+            <key-many-to-one name="notification" column="notification_pkid" class="org.n52.eventing.wv.model.Notification"></key-many-to-one>
+            <key-many-to-one name="series" column="series_pkid" class="org.n52.eventing.wv.model.Series"></key-many-to-one>
+            <key-many-to-one name="event" column="event_log_pkid" class="org.n52.eventing.wv.model.WvEvent"></key-many-to-one>
+        </composite-id>
+        <!-- <property name="eventType" column="event_type_pkid" type="int" /> -->
+        <many-to-one name="eventType" column="event_type_pkid" class="org.n52.eventing.wv.model.WvEventType"></many-to-one>
+    </class>
+</hibernate-mapping>

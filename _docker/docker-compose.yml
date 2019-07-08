@@ -1,0 +1,18 @@
+version: '3'
+services:
+  wv-test-data:
+    image: mdillon/postgis:10
+    volumes:
+      - ./data:/var/lib/postgresql/data
+      - ./1_prepare-db.sql:/docker-entrypoint-initdb.d/zz_1_prepare-db.sql
+      - ./2_public.interval_text.sql:/docker-entrypoint-initdb.d/zz_2_public.interval_text.sql
+      - ./3_public.wintersommerzeit.sql:/docker-entrypoint-initdb.d/zz_3_public.wintersommerzeit.sql
+      - ./4_schema-data.sql:/docker-entrypoint-initdb.d/zz_4_schema-data.sql
+    ports:
+      - 5432:5432
+    expose:
+      - 5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=sos

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+ "-//Hibernate/Hibernate Mapping DTD//EN"
+ "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="org.n52.eventing.wv.model.Group" table="usergroup" mutable="true">
+        <meta attribute="class-description">
+            This class contains the group details.
+        </meta>
+        <id name="usergroupid" type="long" column="usergroupid">
+            <generator class="assigned"/>
+        </id>
+        <property name="name" column="name" type="string" unique="true"/>
+        <property name="description" column="description" type="string"/>
+        <set name="users" table="users_usergroups" inverse="false">
+            <key column="usergroupid" foreign-key="groups_usergroups_fkey_user" />
+            <many-to-many column="userid" class="org.n52.eventing.wv.model.WvUser" foreign-key="groups_usergroups_fkey_user" />
+        </set>
+    </class>
+    <!--
+     <filter-def name="filter_users">
+        <filter-param name="param_users" type="long" />
+    </filter-def>
+     -->
+</hibernate-mapping>

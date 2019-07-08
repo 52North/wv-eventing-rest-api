@@ -1,0 +1,274 @@
+= 52°North Eventing REST API
+
+[[version]]
+== Version
+
+Diese Dokumentation ist für die Version 1.1.0 der Eventing API.
+
+[[installation-der-eventing-rest-api]]
+== Installation der Eventing REST API
+
+[[voraussetzungen]]
+=== Voraussetzungen
+
+Die API ist in Java entwickelt und muss in einem Application Server installiert werden. Folgende Voraussetzungen müssen erfüllt sein:
+
+1.  Java 8 JVM (Orcale oder OpenJDK)
+2.  Application Server (z.B. Tomcat ab Version 7)
+3.  Zugriff auf die PostgreSQL-Datenbank
+
+[[installation]]
+=== Installation
+
+Die API kann wie jede andere Webapp im Tomcat installiert werden (z.B. Kopie in den Order `<tomcat-dir>\webapps`, Hochladen via Tomcat Manager). Danach muss die Konfiguration angepasst werden.
+
+[[konfiguration]]
+=== Konfiguration
+
+[[anpassung-der-datenbank-verbindung]]
+==== Anpassung der Datenbank-Verbindung
+
+Die Verbindung zur Datenbank wird in der Datei `<tomcat-dir>\webapps\eventing-rest-api\WEB-INF\classes\wv\hibernate-eventing.cfg.xml` definiert.
+
+Der Eintrag `<property name="connection.url">` muss entsprechend angepasst werden. Er folgt dabei diesem Schema:
+
+`jdbc:postgresql://<host>:<port>/<db-name>?currentSchema=<db-schema>`
+
+Also z.B.:
+
+`jdbc:postgresql://localhost:5432/wv-eventing?currentSchema=sensorweb2`
+
+[[konfiguration-der-nutzergruppen]]
+==== Konfiguration der Nutzergruppen
+
+Die Berechtigungen für die Nutzung der API werden per Gruppenzuweisungen vorgenommen. Um diese anzupassen, kann die Datei `<tomcat-dir>\webapps\eventing-rest-api\WEB-INF\classes\wv\group-policies.json` angepasst werden. Diese Datei ist beispielsweise wie folgt aufgebaut:
+
+[source,json]
+----
+{
+    "adminGroupNames": [
+        "sensorweb-eventing-admins",
+        "sensorweb-eventing-administrators"
+    ],
+    "groupPrefix": "sensorweb-",
+    "adminSuffix": "-admins"
+}
+
+----
+
+===== Super-Admin
+In dem JSON-Array `adminGroupNames` werden die Gruppennamen eingetragen, die administrativen Zugang zum System haben (Einsehen aller Subscriptions, Gruppen und Nutzer).
+
+===== Group-Admin
+Die Eigenschaft `groupPrefix` definiert einen Präfix, der Gruppennamen voran gestellt sein muss. Ist dies für eine Gruppe nicht der Fall, wird sie in der API nicht berücksichtigt. Der Wert `adminSuffix` definiert die Administrationsgruppe zu einer bestehenden Nutzergruppe. Z.B. ist nach oben stehender Konfiguration die Gruppe `sensorweb-opladen-admins` die Administrationsgruppe zu der Nutzergruppe `sensorweb-opladen`: Mitglieder der Administrationsgruppe können die Gruppen-Abonnements verwalten. Soll ein Nutzer Gruppenadmin der Gruppe `sensorweb-opladen` sein, so muss er sowohl Mitglied in dieser Nutzergruppe (`sensorweb-opladen`) als auch in der dazugehörigen Admin-Gruppe (`sensorweb-opladen-admins`) sein.
+
+[[konfig-der-eventtypes]]
+==== Konfiguration der Event-Typen
+
+Die `/eventTypes`-Resource definiert die statisch verfügbaren Typen von Events. Diese sind über die Datei `<tomcat-dir>\webapps\eventing-rest-api\WEB-INF\classes\wv\event-types.json` konfigurierbar. Beispiel:
+
+[source,json]
+----
+{
+    "eventTypes": [
+        {
+          "id": "1",
+          "label": "Das Ereignis wurde durch eine Regel erzeugt",
+          "name": "Regel-Ereignis"
+        },
+        {
+          "id": "2",
+          "label": "Das Ereignis wurde durch die Aenderung eines Attributes einer Zeitreihe erzeugt",
+          "name": "Zeitreihen-Verwaltung"
+        },
+        {
+          "id": "3",
+          "label": "Das Ereignis wurde duch die Kontrolle der aktuellsten Beobachtung einer Zeitreihe erzeugt",
+          "name": "Alterskontrolle"
+        },
+        {
+          "id": "4",
+          "label": "Das Ereignis wurde duch die Zuordnung von Benachrichtigungen zu Benutzer oder Gruppen erzeugt",
+          "name": "Abonnement"
+        }
+      ]
+}
+----
+
+[[konfig-der-i18n]]
+==== Konfiguration von mehrsprachigen Labels
+
+In der Datei `<tomcat-dir>\webapps\eventing-rest-api\WEB-INF\classes\wv\i18n.json` können für diverse Labels verschiedene Sprachversionen hinterlegt werden.
+
+==== Weitere Konfiguration
+
+In der generellen Konfigurationsdatei (`<tomcat-dir>\webapps\wv-eventing-webapp\WEB-INF\classes\config-default.json`) stehen weitere Konfigurationsmöglichkeiten zur Verfügung.
+
+* **Verkünpfte Series REST API**: Die Basis-URL einer verknüpften (= gleiche Datenbank) Series REST API lässt sich über den Parameter `timeSeriesApiBaseUrl` einstellen. Wichtig ist, dass am Ende `%s` steht, da dies als Platzhalter für eine Series-ID genutzt wird.
+
+[[neustart]]
+=== Neustart
+
+Nach Anpassung der Konfiguration muss der Anwendungskontext (oder der gesamte
+Tomcat) neu gestartet werden. Dies kann beispielsweise über den Tomcat-Manager
+durchgeführt werden.
+
+
+== Paging
+
+Dynamische Resourcen, die eine Ergebnisliste zurückgeben, verfügen über Paging-Funktionalität. Dies kann per URL-Query-Parameter gesteuert werden. Beispiel:
+
+http://host.domain:port/webapp-name/v1/events?limit=10&offset=20
+
+
+Das resultierende JSON spiegelt diese Information wider und listet zusätzlich die Gesamtzahl der verfügbaren Einträge zurück. Beispiel:
+
+[source,json]
+----
+{
+    "data": [
+        {
+            "eventType": {
+                "href": "http://host.domain:port/webapp-name/v1/eventTypes/4",
+                "id": "4"
+            },
+            "href": "http://host.domain:port/webapp-name/v1/events/2",
+            "id": "2",
+            "label": "Example Event",
+            "notificationLevel": {
+                "href": "http://host.domain:port/webapp-name/v1/notificationLevels/9",
+                "id": "9"
+            },
+            "publication": {
+                "href": "http://host.domain:port/webapp-name/v1/publications/1",
+                "id": "1"
+            },
+            "subscription": {
+                "href": "http://host.domain:port/webapp-name/v1/subscriptions/1",
+                "id": "1"
+            },
+            "timestamp": 1509720300000,
+            "timestampCreated": 1509721200000
+        }
+    ],
+    "metadata": {
+        "limit": 10,
+        "offset": 1,
+        "total": 2
+    }
+}
+----
+
+== Fehlermeldungen und Verhalten bei nicht-autorisiertem Zugriff
+
+Die API ist über HTTP Basic Authentication abgesichert. Alle Ressourcen (bis auf die Root-Ressource) benötigen daher einen validen Login:
+
+* ist kein Nutzer eingeloggt (es fehlt der Authentication headerim HTTP-Request), wird ein `401` HTTP-Status zurückgegeben.
+
+Darüber hinaus bestehen
+weiter Beschränkungen durch die Zugehörigkeit eines Nutzers zu Nutzergruppen:
+
+
+* darf ein eingelogger Nutzer nicht auf eine spezifische Ressource (z.B. eine einzelne Subscription unter `/subscriptions/:id`) zugreifen, wird insbesondere kein `403` HTTP-Status zurückgegeben,
+sondern der Status `404` (nicht gefunden).
+* die Ergebnisse bestimmer Ressourcen sind daraufhin gefilter, was ein Nutzer einsehen darf (z.B. nur die eigenen Subscriptions und die der eigenen Gruppen). So ist es häufig
+der Fall, dass gleiche Ressourcen abweichende Ausgaben für unterschiedliche Nutzer erzeugen.
+
+== Reverse Proxy Umgebungen
+
+Wird die API hinter einem Reverse Proxy zur Verfügung gestellt, sind spezielle Konfigurationen notwendig, um die internen Verlinkungen (`href`-Attribut einer Ressourcen-Darstellung) korrekt zu generieren.
+
+Es wird hier auf die gängige Praxis bei Reverse Proxies zurückgegriffen, die spezielle Header (`X-Forwarded-For`, `X-Forwarded-Host`, etc.) definiert. Zusätzlich wird noch ein weiterer Header `X-Forwarded-ContextPath` eingeführt, der berücksichtigt, dass die Eventing API ggf. in dem Proxy auf einem anderen Context-Pfad hört als in dem Application Server (z.B. `/eventing-api` unter Apache HTTPD und `/eventing-webapp` unter Apache Tomcat).
+
+=== Apache HTTP Beispielkonfiguration
+
+Die folgende Definition kann z.B. in die `httpd.conf`-Datei integriert werden.
+
+[source]
+----
+<Location "/apache-eventing/">
+    ProxyPass "http://tomcat-server:8080/wv-eventing-webapp/"
+    ProxyPassReverse "http://tomcat-server:8080/wv-eventing-webapp/"
+    Header add X-Forwarded-ContextPath "/apache-eventing"
+    RequestHeader set X-Forwarded-ContextPath "/apache-eventing"
+    ProxyPreserveHost On
+</Location>
+
+# add ssl config
+<IfModule ssl_module>
+# Secure (SSL/TLS) connections
+Include conf/httpd-ssl.conf
+</IfModule>
+----
+
+Wichtig ist hier, dass die `Location` mit dem Wert des Headers (`Header add X-Forwarded-ContextPath ...` und `RequestHeader set X-Forwarded-ContextPath ...`) übereinstimmt.
+
+Wird der Server auch via HTTPS angeboten muss in der entsprechenden Konfiguration (z.B. `httpd-ssl.conf`) ebenfalls eine `Location` definiert werden. Diese verfügt über einen zusätzlichen Header `X-Forwarded-Proto`:
+
+[source]
+----
+# same location as for http, but with additional header
+<Location "/apache-eventing/">
+    ProxyPass "http://host.domain:port/webapp-name/"
+    ProxyPassReverse "http://host.domain:port/webapp-name/"
+    Header add X-Forwarded-ContextPath "/apache-eventing"
+    RequestHeader set X-Forwarded-ContextPath "/apache-eventing"
+    RequestHeader set X-Forwarded-Proto "https"
+    ProxyPreserveHost On
+</Location>
+----
+
+=== Nginx Beispielkonfiguration
+
+Die folgende Konfiguration kann z.B. in den `sites-enabled`-Ordner (z.B. Linux: `/etc/nginx/sites-enabled`) integriert werden.
+
+[source]
+----
+upstream tomcat {
+    server tomcat-server:8080 fail_timeout=0;
+}
+
+server {
+    listen 80 default_server;
+    
+    listen [::]:80 default_server;
+    client_max_body_size 10M;
+
+    # uncomment for SSL support
+    #listen 443 ssl;
+    #ssl_certificate /etc/nginx/ssl/nginx.crt;
+    #ssl_certificate_key /etc/nginx/ssl/nginx.key;
+
+    root /var/www/html;
+
+    index index.html index.htm index.nginx-debian.html;
+
+    server_name nginx_server;
+
+    location /nginx-eventing/ {
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-ContextPath "/nginx-eventing";
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_redirect        off;
+        proxy_connect_timeout 240;
+        proxy_send_timeout    240;
+        proxy_read_timeout    240;
+        proxy_pass            http://tomcat/wv-eventing-webapp/;
+    }
+
+}
+----
+
+Wichtig ist hier, dass die `location` mit dem Wert des Headers (`proxy_set_header X-Forwarded-ContextPath ...`) übereinstimmt.
+
+Nach Anpassung der Konfiguration muss der Anwendungskontext (oder der gesamte Tomcat) neu gestartet werden. Dies kann beispielsweise über den Tomcat-Manager durchgeführt werden.
+
+
+[[api-kurzdokumentation]]
+== API Dokumentation
+
+Im folgenden Teil wird die REST API der Anwendung beschrieben.
+
+<<<

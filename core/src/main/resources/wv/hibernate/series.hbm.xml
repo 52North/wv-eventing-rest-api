@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+ "-//Hibernate/Hibernate Mapping DTD//EN"
+ "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="org.n52.eventing.wv.model.Series" table="series" mutable="true">
+        <meta attribute="class-description">
+            This class contains the series details.
+        </meta>
+        <id name="id" type="int" column="pkid">
+            <generator class="identity"/>
+        </id>
+        <property name="eventingFlag" type="short">
+            <column name="eventing_flag"/>
+        </property>
+        <many-to-one name="category" class="org.n52.eventing.wv.model.Category" foreign-key="series_category_pkid_fkey">
+            <column name="category_pkid">
+                <comment>Relation/foreign key to the category</comment>
+            </column>
+        </many-to-one>
+        <many-to-one name="phenomenon" class="org.n52.eventing.wv.model.Phenomenon" foreign-key="series_phenomenon_pkid_fkey">
+            <column name="phenomenon_pkid">
+                <comment>Relation/foreign key to the phenomenon</comment>
+            </column>
+        </many-to-one>
+        <many-to-one name="procedure" class="org.n52.eventing.wv.model.Procedure" foreign-key="series_procedure_pkid_fkey">
+            <column name="procedure_pkid">
+                <comment>Relation/foreign key to the procedure</comment>
+            </column>
+        </many-to-one>
+        <many-to-one name="feature" class="org.n52.eventing.wv.model.FeatureOfInterest" foreign-key="series_feature_of_interest_pkid_fkey">
+            <column name="feature_of_interest_pkid">
+                <comment>Relation/foreign key to the feature</comment>
+            </column>
+        </many-to-one>
+        <many-to-one name="unit" class="org.n52.eventing.wv.model.Unit" foreign-key="series_unit_pkid_fkey">
+            <column name="unit_pkid">
+                <comment>Relation/foreign key to the unit</comment>
+            </column>
+        </many-to-one>
+
+        <one-to-one name="checkAge" cascade="all" constrained="false" foreign-key="series_check_age_series_pkid_fkey" />
+    </class>
+
+    <class name="org.n52.eventing.wv.model.SeriesCheckAge" table="series_check_age" mutable="true">
+        <meta attribute="class-description">
+            This class contains the event type info.
+        </meta>
+        <id name="id" type="int" column="series_pkid">
+        </id>
+        <property name="messageGeneratedOn" column="message_generated" type="timestamp"/>
+        <property name="checkInterval" column="check_interval" type="org.n52.eventing.wv.database.IntervalType" />
+        <many-to-one name="unit" class="org.n52.eventing.wv.model.Unit" foreign-key="check_age_unit_pkid_fkey">
+            <column name="unit_pkid">
+                <comment>Relation/foreign key to the unit</comment>
+            </column>
+        </many-to-one>
+        <one-to-one name="series" cascade="all" constrained="true" foreign-key="series_pkid" />
+    </class>
+</hibernate-mapping>

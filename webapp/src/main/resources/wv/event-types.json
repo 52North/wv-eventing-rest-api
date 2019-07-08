@@ -1,0 +1,24 @@
+{
+    "eventTypes": [
+        {
+          "id": "1",
+          "label": "Das Ereignis wurde durch eine Regel erzeugt",
+          "name": "Regel-Ereignis"
+        },
+        {
+          "id": "2",
+          "label": "Das Ereignis wurde durch die Aenderung eines Attributes einer Zeitreihe erzeugt",
+          "name": "Zeitreihen-Verwaltung"
+        },
+        {
+          "id": "3",
+          "label": "Das Ereignis wurde duch die Kontrolle der aktuellsten Beobachtung einer Zeitreihe erzeugt",
+          "name": "Alterskontrolle"
+        },
+        {
+          "id": "4",
+          "label": "Das Ereignis wurde duch die Zuordnung von Benachrichtigungen zu Benutzer oder Gruppen erzeugt",
+          "name": "Abonnement"
+        }
+      ]
+}

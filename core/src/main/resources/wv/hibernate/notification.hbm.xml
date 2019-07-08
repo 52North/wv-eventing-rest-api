@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+ "-//Hibernate/Hibernate Mapping DTD//EN"
+ "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="org.n52.eventing.wv.model.Notification" table="notification" mutable="true">
+        <meta attribute="class-description">
+            This class contains the notification details.
+        </meta>
+        <id name="id" type="int" column="pkid">
+            <generator class="identity"/>
+        </id>
+        <many-to-one name="series" class="org.n52.eventing.wv.model.Series" foreign-key="series_fkey">
+            <column name="series_pkid">
+                <comment>Relation/foreign key to the related series</comment>
+            </column>
+        </many-to-one>
+        <set name="notificationRules" table="notification_rule" inverse="true">
+            <key column="notification_pkid" foreign-key="notification_rule_fkey_notification"/>
+            <one-to-many class="org.n52.eventing.wv.model.NotificationRule" />
+        </set>
+        <set name="subscriptions" table="subscriptions" inverse="true">
+            <key column="notification_pkid" foreign-key="subscription_fkey_notification"/>
+            <one-to-many class="org.n52.eventing.wv.model.WvSubscription" />
+        </set>
+    </class>
+    <class name="org.n52.eventing.wv.model.NotificationRule" table="notification_rule" mutable="true">
+        <meta attribute="class-description">
+            This class contains the notification_rule details.
+        </meta>
+        <composite-id>
+            <key-many-to-one name="notification" column="notification_pkid" class="org.n52.eventing.wv.model.Notification" foreign-key="notification_rule_fkey_notification" />
+            <key-many-to-one name="rule" column="rule_pkid" class="org.n52.eventing.wv.model.Rule" foreign-key="fk_rule_pkid" />
+            <key-many-to-one name="level" column="notification_level_id" class="org.n52.eventing.wv.model.NotificationLevel" foreign-key="notification_rule_fkey_rule" />
+        </composite-id>
+        <many-to-one name="notification" column="notification_pkid" not-null="true" foreign-key="notification_rule_fkey_notification" insert="false" update="false"/>
+        <many-to-one name="rule" column="rule_pkid" not-null="true" foreign-key="notification_rule_fkey_rule" insert="false" update="false"/>
+        <many-to-one name="level" column="notification_level_id" not-null="true" foreign-key="notification_rule_fkey_notification_level" insert="false" update="false"/>
+        <property name="primaryRule" type="org.hibernate.type.NumericBooleanType" not-null="true" >
+            <column name="primary_rule_flag"/>
+        </property>
+    </class>
+    <class name="org.n52.eventing.wv.model.NotificationLevel" table="notification_level" mutable="false">
+        <meta attribute="class-description">
+            This class contains the notification_level details.
+        </meta>
+        <id name="id" type="int" column="level_id">
+            <generator class="identity"/>
+        </id>
+        <property name="label" column="description" type="string" not-null="true" />
+    </class>
+</hibernate-mapping>

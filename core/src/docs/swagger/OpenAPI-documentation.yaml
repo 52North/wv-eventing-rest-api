@@ -1,0 +1,1100 @@
+swagger: '2.0'
+info:
+  title: Eventing REST API
+  description: Eventing REST API for the Wupperverband Sensor Web
+  version: "1.1.0"
+# the domain of the service
+host: localhost:8080
+# array of all schemes that your API supports
+schemes:
+  - http
+# will be prefixed to all paths
+basePath: /eventing-rest-api/v1
+produces:
+  - application/json
+securityDefinitions:
+  basicAuth:
+    type: basic
+tags:
+  - name: Overview
+  - name: Publications
+  - name: Notifications
+  - name: Rules
+  - name: Subscriptions
+  - name: Events
+  - name: Event Metadata
+  - name: Delivery methods
+  - name: Groups and Users
+paths:
+  /:
+    get:
+      summary: Available resources
+      description: |
+        The resources of the API
+      tags:
+        - Overview
+      responses:
+        200:
+          description: the resources representation
+          schema:
+            $ref: '#/definitions/Resources'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /publications:
+    get:
+      summary: Available publications (= series)
+      description: |
+        The Publications (= series) of the database
+      tags:
+        - Publications
+      security:
+        - basicAuth: []
+      parameters:
+        - $ref: '#/parameters/Limit'
+        - $ref: '#/parameters/Offset'
+        - name: feature
+          in: query
+          description: filter by a feature of interest
+          required: false
+          type: string
+      responses:
+        200:
+          description: An array of publications
+          schema:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '#/definitions/Publication'
+              metadata:
+                $ref: '#/definitions/CollectionMetadata'
+        401:
+          $ref: '#/definitions/UnauthorizedError'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /publications/{id}:
+    get:
+      summary: A single publication (= series)
+      description: |
+        A single publication (= series)
+      tags:
+        - Publications
+      security:
+        - basicAuth: []
+      parameters:
+        - $ref: '#/parameters/PathItem'
+      responses:
+        200:
+          description: A publication
+          schema:
+            $ref: '#/definitions/Publication'
+        401:
+          $ref: "#/definitions/UnauthorizedError"
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /notifications:
+    get:
+      summary: Available notifications (= rule groups)
+      description: |
+        The notifications (= rule groups) registered in the database
+      tags:
+        - Notifications
+      security:
+        - basicAuth: []
+      parameters:
+        - $ref: '#/parameters/Limit'
+        - $ref: '#/parameters/Offset'
+        - $ref: '#/parameters/Expanded'
+        - name: publications
+          in: query
+          description: filter by a comma-separated list of publications
+          required: false
+          type: string
+      responses:
+        200:
+          description: An array of notifications
+          schema:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '#/definitions/Notification'
+              metadata:
+                $ref: '#/definitions/CollectionMetadata'
+        401:
+          $ref: "#/definitions/UnauthorizedError"
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /notifications/{id}:
+    get:
+      summary: A single notification (= rule group)
+      description: |
+        A single notification (= rule group)
+      tags:
+        - Notifications
+      security:
+        - basicAuth: []
+      parameters:
+        - $ref: '#/parameters/PathItem'
+      responses:
+        200:
+          description: a notification
+          schema:
+            $ref: '#/definitions/Notification'
+        401:
+          $ref: "#/definitions/UnauthorizedError"
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /notifications/{id}/subscriptions:
+    get:
+      summary: Registered subscriptions for one notification
+      description: |
+        The subscriptions registered in the database for the given notification
+      tags:
+        - Subscriptions
+      security:
+        - basicAuth: []
+      parameters:
+        - $ref: '#/parameters/Limit'
+        - $ref: '#/parameters/Offset'
+        - $ref: '#/parameters/PathItem'
+        - $ref: '#/parameters/Groups'
+      responses:
+        200:
+          description: An array of Subscriptions
+          schema:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '#/definitions/Subscription'
+              metadata:
+                $ref: '#/definitions/CollectionMetadata'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /subscriptions:
+    get:
+      summary: Registered subscriptions
+      description: |
+        The subscriptions registered in the database
+      tags:
+        - Subscriptions
+      security:
+        - basicAuth: []
+      parameters:
+        - $ref: '#/parameters/Limit'
+        - $ref: '#/parameters/Offset'
+        - $ref: '#/parameters/Groups'
+      responses:
+        200:
+          description: An array of Subscriptions
+          schema:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '#/definitions/Subscription'
+              metadata:
+                $ref: '#/definitions/CollectionMetadata'
+        401:
+          $ref: "#/definitions/UnauthorizedError"
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /subscriptions/{id}:
+    get:
+      summary: a single subscription
+      description: |
+        a single subscription
+      tags:
+        - Subscriptions
+      security:
+        - basicAuth: []
+      parameters:
+        - $ref: '#/parameters/PathItem'
+      responses:
+        200:
+          description: A subscription
+          schema:
+            $ref: '#/definitions/Subscription'
+        401:
+          $ref: "#/definitions/UnauthorizedError"
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /deliveryMethods:
+    get:
+      summary: available delivery methods
+      description: |
+        The delivery methods of the system
+      tags:
+        - Delivery methods
+      security:
+        - basicAuth: []
+      parameters:
+        - $ref: '#/parameters/Limit'
+        - $ref: '#/parameters/Offset'
+      responses:
+        200:
+          description: An array of delivery methods
+          schema:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '#/definitions/DeliveryMethod'
+              metadata:
+                $ref: '#/definitions/CollectionMetadata'
+        401:
+          $ref: "#/definitions/UnauthorizedError"
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /deliveryMethods/{id}:
+    get:
+      summary: single delivery method
+      description: |
+        A single delivery method
+      tags:
+        - Delivery methods
+      security:
+        - basicAuth: []
+      parameters:
+        - $ref: '#/parameters/PathItem'
+      responses:
+        200:
+          description: A delivery methods
+          schema:
+            $ref: '#/definitions/DeliveryMethod'
+        401:
+          $ref: "#/definitions/UnauthorizedError"
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /events:
+    get:
+      summary: Triggered events
+      description: |
+        The events triggered and stored in the database
+      tags:
+        - Events
+      security:
+        - basicAuth: []
+      parameters:
+        - $ref: '#/parameters/Limit'
+        - $ref: '#/parameters/Offset'
+        - $ref: '#/parameters/Expanded'
+        - name: latest
+          in: query
+          description: |
+            If this is the only filter parameter (no 'subscriptions' and no 'timespan'), for each of the users subscriptions its latest value will be returned.
+            When the 'subscriptions' parameter is provided, for each of the given subscriptions its latest value will be returned.
+            This parameter cannot be combined with 'timespan'.
+          required: false
+          type: boolean
+        - name: subscriptions
+          in: query
+          description: |
+            Filter for retrieving only events of given subscriptions.
+            This parameter cannot be combined with 'groups'.
+          required: false
+          type: string
+        - name: groups
+          in: query
+          description: |
+            Filter for retrieving only events of given groups.
+            This parameter cannot be combined with 'subscriptions'.
+          required: false
+          type: string
+        - name: timespan
+          in: query
+          description: |
+            filter for retrieving only events matching the given timespan (ISO 8601 period)
+            Example: `timespan=2017-11-07T11:30Z/2017-11-07T11:46Z`
+          required: false
+          type: string
+      responses:
+        200:
+          description: An array of Events
+          schema:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '#/definitions/Event'
+              metadata:
+                $ref: '#/definitions/CollectionMetadata'
+        401:
+          $ref: "#/definitions/UnauthorizedError"
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /events/{id}:
+    get:
+      summary: One specific event
+      description: |
+        One specific event
+      tags:
+        - Events
+      security:
+        - basicAuth: []
+      parameters:
+        - $ref: '#/parameters/PathItem'
+      responses:
+        200:
+          description: one Event
+          schema:
+            $ref: '#/definitions/Event'
+        401:
+          $ref: "#/definitions/UnauthorizedError"
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /eventTriggers:
+    get:
+      summary: Available eventTriggers
+      description: |
+        The eventTriggers registered in the database
+      tags:
+        - Event Metadata
+      security:
+        - basicAuth: []
+      parameters:
+        - $ref: '#/parameters/Limit'
+        - $ref: '#/parameters/Offset'
+      responses:
+        200:
+          description: An array of eventTriggers
+          schema:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '#/definitions/EventTrigger'
+              metadata:
+                $ref: '#/definitions/CollectionMetadata'
+        401:
+          $ref: "#/definitions/UnauthorizedError"
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /eventTypes:
+    get:
+      summary: Available event types
+      description: |
+        The event types registered in the database
+      tags:
+        - Event Metadata
+      security:
+        - basicAuth: []
+      parameters:
+        - $ref: '#/parameters/Limit'
+        - $ref: '#/parameters/Offset'
+      responses:
+        200:
+          description: An array of eventTriggers
+          schema:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '#/definitions/EventType'
+              metadata:
+                $ref: '#/definitions/CollectionMetadata'
+        401:
+          $ref: "#/definitions/UnauthorizedError"
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /eventTypes/{id}:
+    get:
+      summary: One specific eventType
+      description: |
+        One specific eventType
+      tags:
+        - Event Metadata
+      security:
+        - basicAuth: []
+      parameters:
+        - $ref: '#/parameters/PathItem'
+      responses:
+        200:
+          description: one eventType
+          schema:
+            $ref: '#/definitions/EventType'
+        401:
+          $ref: "#/definitions/UnauthorizedError"
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /notificationLevels:
+    get:
+      summary: The set of notification levels of available Events
+      description: |
+        The notification levels as registered in the database
+      tags:
+        - Event Metadata
+      security:
+        - basicAuth: []
+      parameters:
+        - $ref: '#/parameters/Limit'
+        - $ref: '#/parameters/Offset'
+      responses:
+        200:
+          description: An array of notificationLevels
+          schema:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '#/definitions/NotificationLevel'
+              metadata:
+                $ref: '#/definitions/CollectionMetadata'
+        401:
+          $ref: "#/definitions/UnauthorizedError"
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /notificationLevels/{id}:
+    get:
+      summary: One specific notificationLevel
+      description: |
+        One specific notificationLevel
+      tags:
+        - Event Metadata
+      security:
+        - basicAuth: []
+      parameters:
+        - $ref: '#/parameters/PathItem'
+      responses:
+        200:
+          description: one notificationLevel
+          schema:
+            $ref: '#/definitions/NotificationLevel'
+        401:
+          $ref: "#/definitions/UnauthorizedError"
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /groups:
+    get:
+      summary: Registered groups
+      description: |
+        The groups registered in the database
+      tags:
+        - Groups and Users
+      security:
+        - basicAuth: []
+      parameters:
+        - $ref: '#/parameters/Limit'
+        - $ref: '#/parameters/Offset'
+      responses:
+        200:
+          description: An array of Groups
+          schema:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '#/definitions/Group'
+              metadata:
+                $ref: '#/definitions/CollectionMetadata'
+        401:
+          $ref: "#/definitions/UnauthorizedError"
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /groups/{id}:
+    get:
+      summary: Registered group
+      description: |
+        One specific group
+      tags:
+        - Groups and Users
+      security:
+        - basicAuth: []
+      parameters:
+        - $ref: '#/parameters/PathItem'
+      responses:
+        200:
+          description: A group
+          schema:
+            $ref: '#/definitions/Group'
+        401:
+          $ref: "#/definitions/UnauthorizedError"
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /groups/{id}/users:
+    get:
+      summary: Registered users of a group
+      description: |
+        The users of a group as registered in the database
+      tags:
+        - Groups and Users
+      security:
+        - basicAuth: []
+      parameters:
+        - $ref: '#/parameters/PathItem'
+        - $ref: '#/parameters/Limit'
+        - $ref: '#/parameters/Offset'
+      responses:
+        200:
+          description: An array of users
+          schema:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '#/definitions/User'
+              metadata:
+                $ref: '#/definitions/CollectionMetadata'
+        401:
+          $ref: "#/definitions/UnauthorizedError"
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /users:
+    get:
+      summary: Registered users
+      description: |
+        The users registered in the database
+      tags:
+        - Groups and Users
+      security:
+        - basicAuth: []
+      parameters:
+        - $ref: '#/parameters/Limit'
+        - $ref: '#/parameters/Offset'
+      responses:
+        200:
+          description: An array of users
+          schema:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '#/definitions/User'
+              metadata:
+                $ref: '#/definitions/CollectionMetadata'
+        401:
+          $ref: "#/definitions/UnauthorizedError"
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /users/{id}:
+    get:
+      summary: one specific user
+      description: |
+        returns one specific user
+      tags:
+        - Groups and Users
+      security:
+        - basicAuth: []
+      parameters:
+        - $ref: '#/parameters/PathItem'
+      responses:
+        200:
+          description: A user
+          schema:
+            $ref: '#/definitions/User'
+        401:
+          $ref: "#/definitions/UnauthorizedError"
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /users/me:
+    get:
+      summary: the sessions user
+      description: |
+        returns the sessions user
+      tags:
+        - Groups and Users
+      security:
+        - basicAuth: []
+      responses:
+        200:
+          description: The logged-in user
+          schema:
+            $ref: '#/definitions/User'
+        401:
+          $ref: "#/definitions/UnauthorizedError"
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /rules:
+    get:
+      summary: get all registered rules
+      description: |
+        All rules registed in the database
+      tags:
+        - Rules
+      security:
+        - basicAuth: []
+      parameters:
+        - $ref: '#/parameters/Limit'
+        - $ref: '#/parameters/Offset'
+      responses:
+        200:
+          description: An array of rules
+          schema:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '#/definitions/Rule'
+              metadata:
+                $ref: '#/definitions/CollectionMetadata'
+        401:
+          $ref: "#/definitions/UnauthorizedError"
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /rules/{id}:
+    get:
+      summary: one specific rule
+      description: |
+        returns one specific rule
+      tags:
+        - Rules
+      security:
+        - basicAuth: []
+      parameters:
+        - $ref: '#/parameters/PathItem'
+      responses:
+        200:
+          description: A rule
+          schema:
+            $ref: '#/definitions/Rule'
+        401:
+          $ref: "#/definitions/UnauthorizedError"
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+parameters:
+  PathItem:
+    name: id
+    in: path
+    description: the entry id
+    required: true
+    type: string
+  Limit:
+    name: limit
+    in: query
+    description: pagination - page size (defaults to 100)
+    required: false
+    type: number
+    format: integer
+  Offset:
+    name: offset
+    in: query
+    description: pagination - start index (defaults to 0)
+    required: false
+    type: number
+    format: integer
+  Expanded:
+    name: expanded
+    in: query
+    description: indicates that a verbose description should be returned (defaults to false)
+    required: false
+    type: boolean
+  Groups:
+    name: groups
+    in: query
+    description: filter for group(s) (comma separated list), the response contains only results that belongs to the requests group(s)
+    required: false
+    type: string
+definitions:
+  Resources:
+    type: object
+    properties:
+      deliveryMethods:
+        type: string
+        format: uri
+      eventTriggers:
+        type: string
+        format: uri
+      eventTypes:
+        type: string
+        format: uri
+      events:
+        type: string
+        format: uri
+      groups:
+        type: string
+        format: uri
+      notificationLevels:
+        type: string
+        format: uri
+      notifications:
+        type: string
+        format: uri
+      publications:
+        type: string
+        format: uri
+      rules:
+        type: string
+        format: uri
+      subscriptions:
+        type: string
+        format: uri
+      users:
+        type: string
+        format: uri
+  DeliveryMethod:
+    type: object
+    properties:
+      id:
+        type: string
+      href:
+        type: string
+        format: uri
+      label:
+        type: string
+      parameters:
+        type: object
+    required:
+      - id
+      - label
+  EventTrigger:
+    type: object
+    properties:
+      code:
+        type: string
+      href:
+        type: string
+        format: uri
+      label:
+        type: string
+      threshold:
+        type: number
+        format: double
+      thresholdUnit:
+        type: string
+    required:
+      - code
+      - label
+  EventType:
+    type: object
+    properties:
+      id:
+        type: string
+      href:
+        type: string
+        format: uri
+      label:
+        type: string
+      description:
+        type: string
+    required:
+      - id
+      - label
+  Event:
+    type: object
+    properties:
+      id:
+        type: string
+      href:
+        type: string
+        format: uri
+      timestamp:
+        type: string
+        format: date-time
+      timestampCreated:
+        type: string
+        format: date-time
+      eventType:
+        type: object
+        properties:
+          id:
+            type: string
+          href:
+            type: string
+            format: uri
+        required: 
+          - id
+          - href
+      notificationLevel:
+        type: object
+        properties:
+          id:
+            type: string
+          href:
+            type: string
+            format: uri
+        required: 
+          - id
+          - href
+      publication:
+        type: object
+        properties:
+          id:
+            type: string
+          href:
+            type: string
+            format: uri
+        required: 
+          - id
+          - href
+      subscriptions:
+        type: array
+        items:
+          type: object
+          properties:
+            id:
+              type: string
+            href:
+              type: string
+              format: uri
+          required: 
+            - id
+            - href
+      eventDetails:
+        type: object
+        properties:
+          eventTrigger:
+            $ref:  '#/definitions/EventTrigger'
+        required:
+          - eventTrigger
+    required: 
+      - id
+      - timestamp
+      - timestampCreated
+      - eventType
+      - publication
+  Group:
+    type: object
+    properties:
+      id:
+        type: string
+      href:
+        type: string
+        format: uri
+      label:
+        type: string
+      description:
+        type: string
+      admin:
+        type: boolean
+    required:
+      - id
+      - label
+      - description
+  NotificationLevel:
+    type: object
+    properties:
+      id:
+        type: string
+      href:
+        type: string
+        format: uri
+      label:
+        type: string
+    required:
+      - id
+      - label
+  Notification:
+    type: object
+    properties:
+      id:
+        type: string
+      href:
+        type: string
+        format: uri
+      label:
+        type: string
+      publication:
+        type: object
+        properties:
+          id:
+            type: string
+          href:
+            type: string
+            format: uri
+        required: 
+          - id
+          - href
+      rules:
+        type: array
+        items:
+          $ref: '#/definitions/Rule'
+    required: 
+      - id
+      - label
+      - publication
+  Publication:
+    type: object
+    properties:
+      id:
+        type: string
+      href:
+        type: string
+        format: uri
+      label:
+        type: string
+      details:
+        type: object
+        properties:
+          catgory:
+            type: string
+          feature:
+            type: string
+          phenomenon:
+            type: string
+          procedure:
+            type: string
+          unit:
+            type: string
+        required:
+          - category
+          - feature
+          - phenomenon
+          - procedure
+      seriesHref:
+        type: string
+        format: uri
+    required: 
+      - id
+      - label
+      - seriesHref
+  Rule:
+    type: object
+    properties:
+      id:
+        type: string
+      href:
+        type: string
+        format: uri
+      eventTrigger:
+        $ref: '#/definitions/EventTrigger'
+      eventType:
+        $ref: '#/definitions/EventType'
+    required:
+      - id
+      - eventTrigger
+      - eventType
+  Subscription:
+    type: object
+    properties:
+      id:
+        type: string
+      href:
+        type: string
+        format: uri
+      deliveryMethod:
+        $ref: '#/definitions/DeliveryMethod'
+      notification:
+        $ref: '#/definitions/Notification'
+      user:
+        type: object
+        properties:
+          id:
+            type: string
+          href:
+            type: string
+            format: uri
+        required:
+          - id
+          - href
+      group:
+        $ref: '#/definitions/Group'
+  User:
+    type: object
+    properties:
+      id:
+        type: string
+      href:
+        type: string
+        format: uri
+      admin:
+        type: boolean
+      screenName:
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+      email:
+        type: string
+        format: email
+      groups:
+        type: array
+        items:
+          $ref: '#/definitions/Group'
+    required:
+      - id
+      - screenName
+      - firstName
+      - lastName
+      - groups
+  CollectionMetadata:
+    type: object
+    properties:
+      limit:
+        type: integer
+        description: pagination - page size
+      offset:
+        type: integer
+        description: pagination - page offset
+      total:
+        type: integer
+        description: the total hits available for the resource and the given query
+  Error:
+    type: object
+    properties:
+      statusCode:
+        type: integer
+        format: int32
+        description: HTTP status code, e.g. 404
+      reason:
+        type: string
+        description: HTTP status reasong, e.g. Not Found
+      userMessage:
+        type: string
+        description: Information for the user, e.g. Resource with id '-1' was not found.
+  UnauthorizedError:
+    description: Authentication information is missing or invalid
