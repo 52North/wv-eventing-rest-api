@@ -36,11 +36,11 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 import org.hamcrest.CoreMatchers;
+import org.hamcrest.MatcherAssert;
 import org.hibernate.Session;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.n52.eventing.wv.dao.hibernate.HibernateCategoryDao;
 import org.n52.eventing.wv.dao.hibernate.HibernateFeatureOfInterestDao;
 import org.n52.eventing.wv.dao.hibernate.HibernateGroupDao;
@@ -88,14 +88,14 @@ public class HibernateSubscriptionRulesDaoIT {
     private final List<WvUser> createdUsers = new ArrayList<>();
     private final List<Group> createdGroups = new ArrayList<>();
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         HibernateDatabaseConnection hdc = new HibernateDatabaseConnection();
         hdc.afterPropertiesSet();
         this.session = hdc.createSession();
     }
 
-    @After
+    @AfterEach
     public void cleanup() throws DatabaseException {
         if (!this.createdSubscriptions.isEmpty()) {
             HibernateSubscriptionDao dao = new HibernateSubscriptionDao(session);
@@ -181,18 +181,18 @@ public class HibernateSubscriptionRulesDaoIT {
         HibernateNotificationDao notiDao = new HibernateNotificationDao(session);
 
         Optional<Notification> r1r = notiDao.retrieveById(sub1.getNotification().getId());
-        Assert.assertThat(r1r.isPresent(), CoreMatchers.is(true));
-        Assert.assertThat(r1r.get().getNotificationRules().iterator().next().getRule().getThreshold(), CoreMatchers.is(22.0));
-        Assert.assertThat(r1r.get().getSeries().getId(), CoreMatchers.is(sub1.getNotification().getNotificationRules().iterator().next().getRule().getSeries().getId()));
-        Assert.assertThat(r1r.get().getSeries().getId(), CoreMatchers.not(0));
-        Assert.assertThat(r1r.get().getSeries().getUnit().getCode(), CoreMatchers.is("cm"));
+        MatcherAssert.assertThat(r1r.isPresent(), CoreMatchers.is(true));
+        MatcherAssert.assertThat(r1r.get().getNotificationRules().iterator().next().getRule().getThreshold(), CoreMatchers.is(22.0));
+        MatcherAssert.assertThat(r1r.get().getSeries().getId(), CoreMatchers.is(sub1.getNotification().getNotificationRules().iterator().next().getRule().getSeries().getId()));
+        MatcherAssert.assertThat(r1r.get().getSeries().getId(), CoreMatchers.not(0));
+        MatcherAssert.assertThat(r1r.get().getSeries().getUnit().getCode(), CoreMatchers.is("cm"));
 
         Optional<WvSubscription> sub1r = subDao.retrieveById(sub1.getId());
-        Assert.assertThat(sub1r.isPresent(), CoreMatchers.is(true));
-        Assert.assertThat(sub1r.get().getNotification().getId(), CoreMatchers.is(r1r.get().getId()));
+        MatcherAssert.assertThat(sub1r.isPresent(), CoreMatchers.is(true));
+        MatcherAssert.assertThat(sub1r.get().getNotification().getId(), CoreMatchers.is(r1r.get().getId()));
 
         List<WvSubscription> subs = subDao.retrieve(null).getResult();
-        Assert.assertThat(subs.size() > 0, CoreMatchers.is(true));
+        MatcherAssert.assertThat(subs.size() > 0, CoreMatchers.is(true));
     }
 
     @Test
@@ -228,14 +228,14 @@ public class HibernateSubscriptionRulesDaoIT {
         subDao.store(sub1);
         subDao.store(sub2);
 
-        Assert.assertThat(subDao.hasEntity(sub1), CoreMatchers.is(true));
-        Assert.assertThat(ruleDao.hasEntity(sub1.getNotification().getNotificationRules().iterator().next().getRule()), CoreMatchers.is(true));
-        Assert.assertThat(subDao.hasEntity(sub2), CoreMatchers.is(true));
-        Assert.assertThat(ruleDao.hasEntity(sub2.getNotification().getNotificationRules().iterator().next().getRule()), CoreMatchers.is(true));
+        MatcherAssert.assertThat(subDao.hasEntity(sub1), CoreMatchers.is(true));
+        MatcherAssert.assertThat(ruleDao.hasEntity(sub1.getNotification().getNotificationRules().iterator().next().getRule()), CoreMatchers.is(true));
+        MatcherAssert.assertThat(subDao.hasEntity(sub2), CoreMatchers.is(true));
+        MatcherAssert.assertThat(ruleDao.hasEntity(sub2.getNotification().getNotificationRules().iterator().next().getRule()), CoreMatchers.is(true));
 
         List<WvSubscription> sub1r = subDao.retrieveByUser(u1).getResult();
-        Assert.assertThat(sub1r.size(), CoreMatchers.is(1));
-        Assert.assertThat(sub1r.get(0).getUser(), CoreMatchers.is(u1));
+        MatcherAssert.assertThat(sub1r.size(), CoreMatchers.is(1));
+        MatcherAssert.assertThat(sub1r.get(0).getUser(), CoreMatchers.is(u1));
     }
 
     @Test
@@ -266,12 +266,12 @@ public class HibernateSubscriptionRulesDaoIT {
         subDao.store(sub1);
         subDao.store(sub2);
 
-        Assert.assertThat(subDao.hasEntity(sub1), CoreMatchers.is(true));
-        Assert.assertThat(subDao.hasEntity(sub2), CoreMatchers.is(true));
+        MatcherAssert.assertThat(subDao.hasEntity(sub1), CoreMatchers.is(true));
+        MatcherAssert.assertThat(subDao.hasEntity(sub2), CoreMatchers.is(true));
 
         List<WvSubscription> sub1r = subDao.retrieveByGroup(g1).getResult();
-        Assert.assertThat(sub1r.size(), CoreMatchers.is(1));
-        Assert.assertThat(sub1r.get(0).getGroup(), CoreMatchers.is(g1));
+        MatcherAssert.assertThat(sub1r.size(), CoreMatchers.is(1));
+        MatcherAssert.assertThat(sub1r.get(0).getGroup(), CoreMatchers.is(g1));
     }
 
     @Test
@@ -293,11 +293,11 @@ public class HibernateSubscriptionRulesDaoIT {
 
         subDao.store(sub1);
 
-        Assert.assertThat(subDao.hasEntity(sub1), CoreMatchers.is(true));
-        Assert.assertThat(ruleDao.hasEntity(sub1.getNotification().getNotificationRules().iterator().next().getRule()), CoreMatchers.is(false));
+        MatcherAssert.assertThat(subDao.hasEntity(sub1), CoreMatchers.is(true));
+        MatcherAssert.assertThat(ruleDao.hasEntity(sub1.getNotification().getNotificationRules().iterator().next().getRule()), CoreMatchers.is(false));
 
         List<Rule> series1r = ruleDao.retrieveBySeries(Integer.toString(sub1.getNotification().getSeries().getId())).getResult();
-        Assert.assertThat(series1r.size(), CoreMatchers.is(0));
+        MatcherAssert.assertThat(series1r.size(), CoreMatchers.is(0));
     }
 
 

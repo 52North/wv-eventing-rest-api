@@ -43,15 +43,15 @@ public class GroupPoliciesTest {
         GroupPolicies p = new GroupPolicies();
         Set<String> admins = p.getAdminGroupNames();
 
-        Assert.assertThat(admins.size(), CoreMatchers.is(2));
-        Assert.assertThat(admins, CoreMatchers.hasItem("admins-test"));
-        Assert.assertThat(admins, CoreMatchers.hasItem("administrators-test"));
+        MatcherAssert.assertThat(admins.size(), CoreMatchers.is(2));
+        MatcherAssert.assertThat(admins, CoreMatchers.hasItem("admins-test"));
+        MatcherAssert.assertThat(admins, CoreMatchers.hasItem("administrators-test"));
 
         Set<String> editors = p.getEditorGroupNames();
 
-        Assert.assertThat(editors.size(), CoreMatchers.is(2));
-        Assert.assertThat(editors, CoreMatchers.hasItem("editors-test"));
-        Assert.assertThat(editors, CoreMatchers.hasItem("publishers-test"));
+        MatcherAssert.assertThat(editors.size(), CoreMatchers.is(2));
+        MatcherAssert.assertThat(editors, CoreMatchers.hasItem("editors-test"));
+        MatcherAssert.assertThat(editors, CoreMatchers.hasItem("publishers-test"));
     }
 
 }

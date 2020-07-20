@@ -31,7 +31,6 @@ import java.util.Collections;
 import java.util.Random;
 import java.util.UUID;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.joda.time.DateTime;
 import org.joda.time.MutableDateTime;
 import org.n52.eventing.wv.dao.hibernate.HibernateCategoryDao;

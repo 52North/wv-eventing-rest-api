@@ -54,15 +54,15 @@ public class AccessRightsImplTest {
         ar.setPolicies(new GroupPolicies());
         ar.afterPropertiesSet();
 
-        Assert.assertThat(ar.canManageRules(admin1), CoreMatchers.is(true));
-        Assert.assertThat(ar.canManageRules(user1), CoreMatchers.is(false));
+        MatcherAssert.assertThat(ar.canManageRules(admin1), CoreMatchers.is(true));
+        MatcherAssert.assertThat(ar.canManageRules(user1), CoreMatchers.is(false));
 
-        Assert.assertThat(ar.canSeeSubscriptionsOfGroup(admin1, g1), CoreMatchers.is(true));
-        Assert.assertThat(ar.canSeeSubscriptionsOfGroup(user1, g1), CoreMatchers.is(false));
+        MatcherAssert.assertThat(ar.canSeeSubscriptionsOfGroup(admin1, g1), CoreMatchers.is(true));
+        MatcherAssert.assertThat(ar.canSeeSubscriptionsOfGroup(user1, g1), CoreMatchers.is(false));
 
-        Assert.assertThat(ar.canSeeSubscriptionsOfUser(admin1, user1), CoreMatchers.is(true));
-        Assert.assertThat(ar.canSeeSubscriptionsOfUser(user1, admin1), CoreMatchers.is(false));
-        Assert.assertThat(ar.canSeeSubscriptionsOfUser(user1, user1), CoreMatchers.is(true));
+        MatcherAssert.assertThat(ar.canSeeSubscriptionsOfUser(admin1, user1), CoreMatchers.is(true));
+        MatcherAssert.assertThat(ar.canSeeSubscriptionsOfUser(user1, admin1), CoreMatchers.is(false));
+        MatcherAssert.assertThat(ar.canSeeSubscriptionsOfUser(user1, user1), CoreMatchers.is(true));
     }
 
 }

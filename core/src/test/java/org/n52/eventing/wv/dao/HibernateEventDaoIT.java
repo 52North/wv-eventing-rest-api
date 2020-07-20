@@ -37,15 +37,16 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 import org.hamcrest.CoreMatchers;
+import org.hamcrest.MatcherAssert;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameter;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.n52.eventing.wv.dao.hibernate.HibernateCategoryDao;
 import org.n52.eventing.wv.dao.hibernate.HibernateEventDao;
 import org.n52.eventing.wv.dao.hibernate.HibernateEventTypeDao;
@@ -84,11 +85,12 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:m.rieke@52north.org">Matthes Rieke</a>
  */
-@RunWith(Parameterized.class)
 public class HibernateEventDaoIT {
 
     private static final Logger LOG = LoggerFactory.getLogger(HibernateEventDaoIT.class.getName());
 
+    private static HibernateDatabaseConnection hdc;
+    private static List<Object> params;
     private Session session;
 
     private Series createdSeries;
@@ -100,26 +102,36 @@ public class HibernateEventDaoIT {
     private WvEvent createdEvent1;
     private WvEvent createdEvent2;
 
-    @Parameterized.Parameters
-    public static List<Object[]> data() throws Exception {
-        HibernateDatabaseConnection hdc = new HibernateDatabaseConnection();
-        hdc.afterPropertiesSet();
-        Object[][] params = new Object[100][1];
-        for (int i = 0; i < params.length; i++) {
-            params[i][0] = hdc;
-        }
-        return Arrays.asList(params);
-    }
+//    @ParameterizedTest
+//    public static List<Object[]> data() throws Exception {
+//        HibernateDatabaseConnection hdc = new HibernateDatabaseConnection();
+//        hdc.afterPropertiesSet();
+//        Object[][] params = new Object[100][1];
+//        for (int i = 0; i < params.length; i++) {
+//            params[i][0] = hdc;
+//        }
+//        return Arrays.asList(params);
+//    }
+//
+//    @Parameter(0)
+//    public HibernateDatabaseConnection hdc;
 
-    @Parameter(0)
-    public HibernateDatabaseConnection hdc;
+    public List<Object[]> data() throws Exception {
+      HibernateDatabaseConnection hdc = new HibernateDatabaseConnection();
+      hdc.afterPropertiesSet();
+      Object[][] params = new Object[100][1];
+      for (int i = 0; i < params.length; i++) {
+          params[i][0] = hdc;
+      }
+      return Arrays.asList(params);
+  }
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         this.session = hdc.createSession();
     }
 
-    @After
+    @AfterEach
     public void cleanup() throws DatabaseException {
         Transaction trans = session.beginTransaction();
         if (this.createdSubscription != null) {
@@ -173,7 +185,8 @@ WHERE
      * @throws DatabaseException
      */
 
-    @Test
+    @ParameterizedTest
+    @MethodSource("data")
     public void testRetrievalBySubscription() throws DatabaseException {
         HibernateEventDao dao = new HibernateEventDao(session);
         HibernateSubscriptionDao subDao = new HibernateSubscriptionDao(session);
@@ -215,17 +228,17 @@ WHERE
             List<WvEvent> sub2events = dao.retrieveForSubscription(sub2.getId()).getResult();
             List<WvEvent> subAllevents = dao.retrieveForSubscription(sub1.getId(), sub2.getId()).getResult();
 
-            Assert.assertThat(sub1events.size(), CoreMatchers.is(1));
-            Assert.assertThat(sub2events.size(), CoreMatchers.is(1));
-            Assert.assertThat(subAllevents.size(), CoreMatchers.is(2));
+            MatcherAssert.assertThat(sub1events.size(), CoreMatchers.is(1));
+            MatcherAssert.assertThat(sub2events.size(), CoreMatchers.is(1));
+            MatcherAssert.assertThat(subAllevents.size(), CoreMatchers.is(2));
 
-            Assert.assertThat(sub1events.get(0).getValue(), CoreMatchers.is(5.0));
-            Assert.assertThat(sub1events.get(0).getPreviousValue(), CoreMatchers.is(4.0));
-            Assert.assertThat(sub1events.get(0).getEventMessage().getName(), CoreMatchers.equalTo("event-1-msg"));
+            MatcherAssert.assertThat(sub1events.get(0).getValue(), CoreMatchers.is(5.0));
+            MatcherAssert.assertThat(sub1events.get(0).getPreviousValue(), CoreMatchers.is(4.0));
+            MatcherAssert.assertThat(sub1events.get(0).getEventMessage().getName(), CoreMatchers.equalTo("event-1-msg"));
 
-            Assert.assertThat(sub2events.get(0).getValue(), CoreMatchers.is(3.0));
-            Assert.assertThat(sub2events.get(0).getPreviousValue(), CoreMatchers.is(2.0));
-            Assert.assertThat(sub2events.get(0).getEventMessage().getName(), CoreMatchers.equalTo("event-2-msg"));
+            MatcherAssert.assertThat(sub2events.get(0).getValue(), CoreMatchers.is(3.0));
+            MatcherAssert.assertThat(sub2events.get(0).getPreviousValue(), CoreMatchers.is(2.0));
+            MatcherAssert.assertThat(sub2events.get(0).getEventMessage().getName(), CoreMatchers.equalTo("event-2-msg"));
 
             // now with custom filter method
             Map<String, String[]> filter = new HashMap<>();
@@ -233,27 +246,27 @@ WHERE
             filter.put("subscriptions", new String[] {Integer.toString(sub1.getId())});
 
             List<WvEvent> subEventsFiltered = dao.retrieveWithFilter(filter, null).getResult();
-            Assert.assertThat(subEventsFiltered.size(), CoreMatchers.is(1));
-            Assert.assertThat(subEventsFiltered.get(0).getValue(), CoreMatchers.is(5.0));
-            Assert.assertThat(subEventsFiltered.get(0).getPreviousValue(), CoreMatchers.is(4.0));
-            Assert.assertThat(subEventsFiltered.get(0).getEventMessage().getName(), CoreMatchers.equalTo("event-1-msg"));
+            MatcherAssert.assertThat(subEventsFiltered.size(), CoreMatchers.is(1));
+            MatcherAssert.assertThat(subEventsFiltered.get(0).getValue(), CoreMatchers.is(5.0));
+            MatcherAssert.assertThat(subEventsFiltered.get(0).getPreviousValue(), CoreMatchers.is(4.0));
+            MatcherAssert.assertThat(subEventsFiltered.get(0).getEventMessage().getName(), CoreMatchers.equalTo("event-1-msg"));
 
             filter = new HashMap<>();
             filter.put("publication", new String[] {Integer.toString(createdSeries.getId() + 50000)});
             filter.put("subscriptions", new String[] {Integer.toString(sub1.getId())});
 
             subEventsFiltered = dao.retrieveWithFilter(filter, null).getResult();
-            Assert.assertThat(subEventsFiltered.size(), CoreMatchers.is(0));
+            MatcherAssert.assertThat(subEventsFiltered.size(), CoreMatchers.is(0));
 
             filter = new HashMap<>();
             filter.put("publication", new String[] {Integer.toString(createdSeries.getId(), createdSeries.getId() + 50000)});
             filter.put("subscriptions", new String[] {Integer.toString(sub1.getId())});
 
             subEventsFiltered = dao.retrieveWithFilter(filter, null).getResult();
-            Assert.assertThat(subEventsFiltered.size(), CoreMatchers.is(1));
-            Assert.assertThat(subEventsFiltered.get(0).getValue(), CoreMatchers.is(5.0));
-            Assert.assertThat(subEventsFiltered.get(0).getPreviousValue(), CoreMatchers.is(4.0));
-            Assert.assertThat(subEventsFiltered.get(0).getEventMessage().getName(), CoreMatchers.equalTo("event-1-msg"));
+            MatcherAssert.assertThat(subEventsFiltered.size(), CoreMatchers.is(1));
+            MatcherAssert.assertThat(subEventsFiltered.get(0).getValue(), CoreMatchers.is(5.0));
+            MatcherAssert.assertThat(subEventsFiltered.get(0).getPreviousValue(), CoreMatchers.is(4.0));
+            MatcherAssert.assertThat(subEventsFiltered.get(0).getEventMessage().getName(), CoreMatchers.equalTo("event-1-msg"));
         }
         catch (DatabaseException | RuntimeException e) {
             LOG.warn(e.getMessage(), e);

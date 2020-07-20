@@ -31,12 +31,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.UUID;
 import org.hamcrest.CoreMatchers;
+import org.hamcrest.MatcherAssert;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.n52.eventing.wv.dao.DatabaseException;
 import org.n52.eventing.wv.dao.ImmutableException;
 import org.n52.eventing.wv.dao.hibernate.HibernateGroupDao;
@@ -62,7 +61,7 @@ public class UserSecurityServiceIT {
     private WvUser createdUser;
     private Group createdGroup;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         HibernateDatabaseConnection hdc = new HibernateDatabaseConnection();
         hdc.afterPropertiesSet();
@@ -79,7 +78,7 @@ public class UserSecurityServiceIT {
         this.userSecurityService.setGroupPolicies(new GroupPolicies());
     }
 
-    @After
+    @AfterEach
     public void cleanup() throws DatabaseException {
         this.userDao.remove(createdUser);
         this.groupDao.remove(createdGroup);
@@ -108,18 +107,18 @@ public class UserSecurityServiceIT {
         UsernamePasswordAuthenticationToken result = this.userSecurityService.authenticate(
                 new UsernamePasswordAuthenticationToken(createdUser.getName(), password));
 
-        Assert.assertThat(result, CoreMatchers.notNullValue());
-        Assert.assertThat(result.getPrincipal(), CoreMatchers.instanceOf(UserPrinciple.class));
-        Assert.assertThat(((UserPrinciple) result.getPrincipal()).getUser().getName(), CoreMatchers.equalTo(createdUser.getName()));
+        MatcherAssert.assertThat(result, CoreMatchers.notNullValue());
+        MatcherAssert.assertThat(result.getPrincipal(), CoreMatchers.instanceOf(UserPrinciple.class));
+        MatcherAssert.assertThat(((UserPrinciple) result.getPrincipal()).getUser().getName(), CoreMatchers.equalTo(createdUser.getName()));
 
         Collection<GrantedAuthority> auths = result.getAuthorities();
-        auths.forEach(ga -> Assert.assertThat(ga, CoreMatchers.instanceOf(GroupPrinciple.class)));
+        auths.forEach(ga -> MatcherAssert.assertThat(ga, CoreMatchers.instanceOf(GroupPrinciple.class)));
 
         long adminCount = auths.stream().filter((GrantedAuthority ga) -> {
             return ((GroupPrinciple) ga).getAuthority().equals("admins");
         }).count();
 
-        Assert.assertThat(adminCount, CoreMatchers.is(1L));
+        MatcherAssert.assertThat(adminCount, CoreMatchers.is(1L));
     }
 
 }

@@ -32,11 +32,11 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.hamcrest.CoreMatchers;
+import org.hamcrest.MatcherAssert;
 import org.hibernate.Session;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.n52.eventing.wv.dao.hibernate.HibernateTrendDao;
 import org.n52.eventing.wv.database.HibernateDatabaseConnection;
 import org.n52.eventing.wv.model.Trend;
@@ -50,7 +50,7 @@ public class HibernateTrendDaoIT {
     private HibernateDatabaseConnection hdc;
     private Session session;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         this.hdc = new HibernateDatabaseConnection();
         this.hdc.afterPropertiesSet();
@@ -62,13 +62,13 @@ public class HibernateTrendDaoIT {
         HibernateTrendDao dao = new HibernateTrendDao(session);
 
         Optional<Trend> t1 = dao.retrieveByDomainTrend(TrendDao.DomainTrend.Failure);
-        Assert.assertThat(t1.get().getId(), CoreMatchers.is(99));
+        MatcherAssert.assertThat(t1.get().getId(), CoreMatchers.is(99));
 
         t1 = dao.retrieveByDomainTrend(TrendDao.DomainTrend.LessLess);
-        Assert.assertThat(t1.get().getId(), CoreMatchers.is(11));
+        MatcherAssert.assertThat(t1.get().getId(), CoreMatchers.is(11));
 
         t1 = dao.retrieveByDomainTrend(TrendDao.DomainTrend.GreaterGreater);
-        Assert.assertThat(t1.get().getId(), CoreMatchers.is(33));
+        MatcherAssert.assertThat(t1.get().getId(), CoreMatchers.is(33));
     }
 
     @Test
@@ -76,19 +76,19 @@ public class HibernateTrendDaoIT {
         HibernateTrendDao dao = new HibernateTrendDao(session);
 
         Optional<Trend> t1 = dao.retrieveByDomainTrend(TrendDao.DomainTrend.LessLess, Locale.forLanguageTag("en"));
-        Assert.assertThat(t1.isPresent(), CoreMatchers.is(true));
-        Assert.assertThat(t1.get().getLocale(), CoreMatchers.is("en"));
+        MatcherAssert.assertThat(t1.isPresent(), CoreMatchers.is(true));
+        MatcherAssert.assertThat(t1.get().getLocale(), CoreMatchers.is("en"));
 
         List<Trend> list = dao.retrieve(null, Locale.forLanguageTag("en")).getResult().stream()
                 .collect(Collectors.toList());
 
-        Assert.assertThat(list.size(), CoreMatchers.is(10));
-        Assert.assertThat(list.get(0).getLocale(), CoreMatchers.is("en"));
-        Assert.assertThat(list.get(9).getLocale(), CoreMatchers.is("en"));
+        MatcherAssert.assertThat(list.size(), CoreMatchers.is(10));
+        MatcherAssert.assertThat(list.get(0).getLocale(), CoreMatchers.is("en"));
+        MatcherAssert.assertThat(list.get(9).getLocale(), CoreMatchers.is("en"));
     }
 
 
-    @After
+    @AfterEach
     public void shutdown() {
         session.close();
     }

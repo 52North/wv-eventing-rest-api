@@ -36,9 +36,9 @@ import java.util.Random;
 import java.util.UUID;
 import org.hamcrest.CoreMatchers;
 import org.hibernate.Session;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.hamcrest.MatcherAssert;
 import org.n52.eventing.wv.dao.hibernate.HibernateUserDao;
 import org.n52.eventing.wv.database.HibernateDatabaseConnection;
 import org.n52.eventing.wv.model.Group;
@@ -57,7 +57,7 @@ public class HibernateUserGroupsDaoIT {
     private BCryptPasswordEncoder encoder;
     private GroupPolicies policies;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         this.hdc = new HibernateDatabaseConnection();
         this.hdc.afterPropertiesSet();
@@ -84,7 +84,7 @@ public class HibernateUserGroupsDaoIT {
         }
 
         gopt = groupDao.retrieveByName(name);
-        Assert.assertThat(gopt.isPresent(), CoreMatchers.is(true));
+        MatcherAssert.assertThat(gopt.isPresent(), CoreMatchers.is(true));
 
         List<WvUser> added = new ArrayList<>();
 
@@ -104,12 +104,12 @@ public class HibernateUserGroupsDaoIT {
         for (int i = 0; i < 3; i++) {
             WvUser e1 = added.get(i);
             Optional<WvUser> r1 = userDao.retrieveById(e1.getId());
-            Assert.assertThat(r1.get().getName(), CoreMatchers.equalTo(e1.getName()));
-            Assert.assertThat(r1.get().getGroups(), CoreMatchers.hasItem(g));
+            MatcherAssert.assertThat(r1.get().getName(), CoreMatchers.equalTo(e1.getName()));
+            MatcherAssert.assertThat(r1.get().getGroups(), CoreMatchers.hasItem(g));
 
             Optional<WvUser> r2 = userDao.retrieveByName(e1.getName());
-            Assert.assertThat(r2.get().getName(), CoreMatchers.equalTo(e1.getName()));
-            Assert.assertThat(r2.get().getGroups(), CoreMatchers.hasItem(g));
+            MatcherAssert.assertThat(r2.get().getName(), CoreMatchers.equalTo(e1.getName()));
+            MatcherAssert.assertThat(r2.get().getGroups(), CoreMatchers.hasItem(g));
         }
     }
 
@@ -136,9 +136,9 @@ public class HibernateUserGroupsDaoIT {
         }
 
         List<WvUser> r1 = userDao.retrieveByGroup(g).getResult();
-        Assert.assertThat(r1.size(), CoreMatchers.is(5));
+        MatcherAssert.assertThat(r1.size(), CoreMatchers.is(5));
         r1.stream().forEach((u) -> {
-            Assert.assertThat(u.getGroups(), CoreMatchers.hasItem(g));
+            MatcherAssert.assertThat(u.getGroups(), CoreMatchers.hasItem(g));
         });
 
     }

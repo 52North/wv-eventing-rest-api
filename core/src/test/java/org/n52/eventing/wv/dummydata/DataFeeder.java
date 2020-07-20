@@ -31,12 +31,11 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.n52.eventing.wv.dao.DatabaseException;
-import org.n52.eventing.wv.dao.EventTypeDao;
 import org.n52.eventing.wv.dao.TrendDao;
 import org.n52.eventing.wv.dao.hibernate.HibernateCategoryDao;
 import org.n52.eventing.wv.dao.hibernate.HibernateEventDao;
