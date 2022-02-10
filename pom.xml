@@ -20,7 +20,7 @@
     </modules>
     <properties>
         <eventing.version>1.0.0-rc5</eventing.version>
-        <hibernate-version>5.4.18.Final</hibernate-version>
+        <hibernate-version>5.4.24.Final</hibernate-version>
         <version.junit>5.6.2</version.junit>
         <version.mockito>3.4.4</version.mockito>
         <version.hamcrest>2.2</version.hamcrest>
